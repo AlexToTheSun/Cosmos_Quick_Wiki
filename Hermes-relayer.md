@@ -36,7 +36,7 @@ An IBC relayer is an off-chain process responsible for relaying IBC datagrams be
 3. submitting the transactions to the chains involved in the network.
 
 #### So what we need to relaying?
-1. Configure opend RPC nodes of the chains you want to relay between (or use already configured by other people).
+1. Configure opend RPC nodes (or use already configured by other people) of the chains you want to relay between.
 2. Fund keys of the chains you want to relay between for paying relayer fees.
 3. Configure Hermes.
 
@@ -150,7 +150,7 @@ Use SEI testnet faucet for funding your wallet that you will use for Hermes. It 
 
 # Install and configure Hermes
 This step could be done on the separate server, or on the server that you already installed one of the chains.
-### Install Hermes by downloading
+## Install Hermes by downloading
 Official instruction is [here](https://hermes.informal.systems/installation.html)
 ```
 sudo apt install unzip -y
@@ -192,7 +192,7 @@ SUBCOMMANDS:
     upgrade         Upgrade objects (clients) after chain upgrade
     completions     Generate auto-complete scripts for different shells
 ```
-### Hermes Configuration
+## Hermes Configuration
 First of all let's set the variables that will be needed to create the Hermes config file.  
 For each chains we need the parameters below:
 - `chain_id` - current chain ID for the network 
@@ -203,6 +203,9 @@ For each chains we need the parameters below:
 - `trusting_period` - `trusting_period=2/3*(unbonding period)`. It is the amount of time to be used as the light client trusting period.
 - `denom`
 - `max_tx_size` - the maximum size, in bytes, of each transaction that Hermes will submit.
+
+Example Configuration File fo Hermes https://hermes.informal.systems/example-config.html
+About config. TLS connection https://hermes.informal.systems/config.html#connecting-via-tls
 #### For SEI network:
 ```
 chain_id_SEI="atlantic-1"
@@ -257,10 +260,13 @@ gas_price_Stafihub="0.01"
 ```
 relayer_name="<your_relayer_name>"
 ```
-#### Let's create a `config.toml` with two chains
-Example Configuration File fo Hermes https://hermes.informal.systems/example-config.html
+### Let's create a `config.toml` with two chains
+- Example of config - https://hermes.informal.systems/example-config.html
+- Abling to handle channel handshake and packet events - https://hermes.informal.systems/commands/relaying/handshakes.html
 
-Let's create our own config. Just run the command:
+Let's create our own config. We will configure our Hermes to be able handles [channel and packet messages](https://hermes.informal.systems/commands/relaying/handshakes.html)
+
+Just run the command:
 ```
 sudo tee $HOME/.hermes/config.toml > /dev/null <<EOF
 [global]
@@ -274,10 +280,10 @@ refresh = true
 misbehaviour = true
 
 [mode.connections]
-enabled = false
+enabled = true
 
 [mode.channels]
-enabled = false
+enabled = true
 
 [mode.packets]
 enabled = true
@@ -342,18 +348,136 @@ trust_threshold = { numerator = '1', denominator = '3' }
 memo_prefix = '${relayer_name} Relayer'
 EOF
 ```
+#### Performs a health check of all chains in the the config
+After you create a config, checking is required:
+```
+hermes health-check
+```
+At this stage, problems may arise, and it is very important for us to solve them. After that, let's move on to the next steps.
+
+## Adding private keys
+- Official instruction of Adding private keys - https://hermes.informal.systems/commands/keys/index.html
+- Transactions - https://hermes.informal.systems/commands/tx/index.html
+
+You need to add a private key for each chain. After that Hermes will be enabled to submit [transactions](https://hermes.informal.systems/commands/tx/index.html).
+
+In our example you should add SEI and StafiHub keys. The `key_name` parameter from Hermes `config.toml`, is the name of the key that will be added after restoring Keys.
+
+```
+MNEMONIC_SEI='speed rival market sure decade call silly flush derive story state menu inflict catalog habit swallow anxiety lumber siege fuel engage kite dad harsh'
+
+MNEMONIC_STAFIHUB='speed rival market sure decade call silly flush derive story state menu inflict catalog habit swallow anxiety lumber siege fuel engage kite dad harsh'
+
+sudo tee $HOME/.hermes/${chain_id_SEI}.mnemonic > /dev/null <<EOF
+${MNEMONIC_SEI}
+EOF
+sudo tee $HOME/.hermes/${chain_id_Stafihub}.mnemonic > /dev/null <<EOF
+${MNEMONIC_STAFIHUB}
+EOF
+hermes keys add --chain ${chain_id_SEI} --mnemonic-file $HOME/.hermes/${chain_id_SEI}.mnemonic
+hermes keys add --chain ${chain_id_Stafihub} --mnemonic-file $HOME/.hermes/${chain_id_Stafihub}.mnemonic
+```
+## Clients. Connections. Channels.
+#### Identifiers
+First make sure you followed the steps in the [start the local chains](https://hermes.informal.systems/tutorials/local-chains/start.html) and [Identifiers](https://hermes.informal.systems/tutorials/local-chains/identifiers.html) section
 
 
+#### 1 Identifiers
+https://hermes.informal.systems/tutorials/local-chains/identifiers.html
+
+Create your `sei-->stafihub` client
+```
+hermes tx raw create-client --host-chain atlantic-1 --reference-chain stafihub-public-testnet-3
+```
+![Снимок экрана от 2022-07-29 21-32-43](https://user-images.githubusercontent.com/30211801/181814003-7812b4f0-c2e1-4ff8-a5cf-b1c450727823.png)
+Query `sei-->stafihub` client, with your client_id (in the transaction below there will be my information just for examples)
+```
+hermes query client state --chain atlantic-1 --client 07-tendermint-613
+```
+Create your `stafihub-->sei` client
+```
+hermes tx raw create-client --host-chain stafihub-public-testnet-3 --reference-chain atlantic-1
+```
+![Снимок экрана от 2022-07-29 21-38-16](https://user-images.githubusercontent.com/30211801/181814741-8dd9b5ab-e6a1-4342-bf70-ef413173d274.png)
+Query `stafihub-->sei` client, with your client_id
+```
+hermes query client state --chain stafihub-public-testnet-3 --client 07-tendermint-44
+```
+Update your `sei-->stafihub` client
+```
+hermes tx raw update-client --host-chain atlantic-1 --client 07-tendermint-613
+```
+![Снимок экрана от 2022-07-29 21-43-57](https://user-images.githubusercontent.com/30211801/181815590-d5161b16-bac2-436d-9d63-5ea240738cbb.png)
+
+Update your `stafihub-->sei` client
+```
+hermes tx raw update-client --host-chain stafihub-public-testnet-3 --client 07-tendermint-44
+```
+![Снимок экрана от 2022-07-29 21-45-00](https://user-images.githubusercontent.com/30211801/181815752-36e2edf8-71cb-4229-9b82-ca0cb2f88719.png)
+
+#### 2. Connection Handshake
+Create `sei-->stafihub` connection 
+```
+hermes tx raw conn-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-613 --src-client 07-tendermint-44
+```
+![Снимок экрана от 2022-07-29 21-46-49](https://user-images.githubusercontent.com/30211801/181816033-c24255cb-a17d-4cab-b1c6-053f75b7e5f7.png)
+here we are : `connection-287`
+
+Create `stafihub-->sei` connection 
+```
+hermes tx raw conn-init --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-client 07-tendermint-44 --src-client 07-tendermint-613
+```
+![Снимок экрана от 2022-07-29 21-49-00](https://user-images.githubusercontent.com/30211801/181816324-7347cdfa-4abd-4487-a6fc-f3a4d6deb29f.png)
+here we are : `connection-31`
+
+Conn-try `stafihub-->sei`
+```
+hermes tx raw conn-try --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-613 --src-client 07-tendermint-44 --src-conn connection-31
+```
+![Снимок экрана от 2022-07-29 22-01-53](https://user-images.githubusercontent.com/30211801/181818302-5d33b97d-88d0-4712-afcf-95c910ef61c1.png)
+
+Strange. There is an Error, but transection [46D553C9A1E3B4A08BCC4F13F8DFEAF9275C2A13F5F4568BC4FD6EDD4710DDFD](https://testnet-explorer.stafihub.io/stafi-hub-testnet/tx/46D553C9A1E3B4A08BCC4F13F8DFEAF9275C2A13F5F4568BC4FD6EDD4710DDFD) is successful.   
+Log of error:
+```
+2022-07-29T17:53:30.815480Z  INFO ThreadId(01) using default configuration from '/root/.hermes/config.toml'
+2022-07-29T17:53:33.144783Z  INFO ThreadId(14) wait_for_block_commits: waiting for commit of tx hashes(s) 46D553C9A1E3B4A08BCC4F13F8DFEAF9275C2A13F5F4568BC4FD6EDD4710DDFD id=stafihub-public-testnet-3
+Error: connection error: failed to build connection proofs: bad connection state
+```
+Conn-try `sei-->stafihub`
+```
+hermes tx raw conn-try --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-client 07-tendermint-44 --src-client 07-tendermint-613 --src-conn connection-287
+```
+There is an Error, but transection [3A9A9EF8C07D95AC4BAE25619975BE92FF18C87DF72A27566615414B03E88C59](https://sei.explorers.guru/transaction/3A9A9EF8C07D95AC4BAE25619975BE92FF18C87DF72A27566615414B03E88C59) is successful.   
+Log of error:
+```
+2022-07-29T18:03:14.460739Z  INFO ThreadId(01) using default configuration from '/root/.hermes/config.toml'
+2022-07-29T18:03:20.465310Z  INFO ThreadId(14) wait_for_block_commits: waiting for commit of tx hashes(s) 3A9A9EF8C07D95AC4BAE25619975BE92FF18C87DF72A27566615414B03E88C59 id=atlantic-1
+Error: connection error: failed to build connection proofs: bad connection state
+```
+
+Init channel
+```
+hermes tx raw chan-open-init --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-conn connection-31 --dst-port transfer --src-port transfer --order UNORDERED
+```
+![Снимок экрана от 2022-07-29 22-51-37](https://user-images.githubusercontent.com/30211801/181825652-b1379991-f210-4e5f-9faf-31c190be8c54.png)
+Here is the `channel-26` created
+
+```
+hermes tx raw chan-open-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-conn connection-287 --dst-port transfer --src-port transfer --order UNORDERED
+```
+![Снимок экрана от 2022-07-29 22-53-29](https://user-images.githubusercontent.com/30211801/181825926-0b65fd6f-2f5a-4ffd-81a6-48d3787668a1.png)
+Here is the `channel-264` created
 
 
-
-
-
-
-
-
-
-
-
-
-
+```
+hermes tx raw conn-ack --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-613 --src-client 07-tendermint-44 --dst-conn connection-287 --src-conn connection-31
+```
+![Снимок экрана от 2022-07-29 23-02-24](https://user-images.githubusercontent.com/30211801/181827258-beefdb46-4767-4364-9c52-a29cc8617891.png)
+Logs of command:
+```
+root@nb3c732:~# hermes tx raw chan-open-try --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-conn connection-287 --dst-port transfer --src-port transfer --src-chan channel-26
+2022-07-29T18:56:53.959813Z  INFO ThreadId(01) using default configuration from '/root/.hermes/config.toml'
+2022-07-29T18:56:54.214083Z  INFO ThreadId(01) Message ChanOpenTry: Channel { ordering: Unordered, a_side: ChannelSide { chain: BaseChainHandle { chain_id: ChainId { id: "stafihub-public-testnet-3", version: 3 }, runtime_sender: Sender { .. } }, client_id: ClientId("07-tendermint-0"), connection_id: ConnectionId("connection-0"), port_id: PortId("transfer"), channel_id: Some(ChannelId("channel-26")), version: None }, b_side: ChannelSide { chain: BaseChainHandle { chain_id: ChainId { id: "atlantic-1", version: 1 }, runtime_sender: Sender { .. } }, client_id: ClientId("07-tendermint-613"), connection_id: ConnectionId("connection-287"), port_id: PortId("transfer"), channel_id: None, version: None }, connection_delay: 0ns }
+2022-07-29T18:57:03.271639Z ERROR ThreadId(27) send_tx_with_account_sequence_retry{id=atlantic-1}:estimate_gas: failed to simulate tx. propagating error to caller: gRPC call failed with status: status: Unknown, message: "failed to execute message; message index: 1: channel handshake open try failed: channel fields mismatch previous channel fields: invalid channel", details: [], metadata: MetadataMap { headers: {"content-type": "application/grpc", "x-cosmos-block-height": "1469499"} }
+Error: channel error: failed during a transaction submission step to chain 'atlantic-1': gRPC call failed with status: status: Unknown, message: "failed to execute message; message index: 1: channel handshake open try failed: channel fields mismatch previous channel fields: invalid channel", details: [], metadata: MetadataMap { headers: {"content-type": "application/grpc", "x-cosmos-block-height": "1469499"} }
+```
