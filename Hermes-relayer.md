@@ -1,27 +1,33 @@
 ## Documetnation
 - https://github.com/informalsystems/ibc-rs
 - https://hermes.informal.systems/
+- [Hermes IBC Workshop](https://github.com/informalsystems/hermes-ibc-workshop)
 - [An Overview of The Interblockchain Communication Protocol](https://arxiv.org/pdf/2006.15918.pdf)
 
 ## Table of contents
-0. Relaying overwiew
-1. Configure opend RPC nodes and Fund keys
-2. Install and configure Hermes
-3.1 create-client
-3.2 client state
-3.3 update-client
-4.1 conn-init
-4.2 conn-try
-4.3 conn-ack
-4.4 conn-confirm
-4.5 connection end
-5.1 chan-open-init
-5.2 chan-open-try
-5.3 chan-open-ack
-5.4 chan-open-confirm
-5.5 
+1. Relaying overwiew
+2. Configure opend RPC nodes and Fund keys
+3. Install and configure Hermes
+4. Configure clients
+- 1. create-client
+- 2. client state
+- 3. update-client
+- 4. Query client
+5. Connection Handshake
+- 1. conn-init
+- 2. conn-try
+- 3. conn-ack
+- 4. conn-confirm
+- 5. Query connection
+6. Channel Handshake
+- 1. chan-open-init
+- 2. chan-open-try
+- 3. chan-open-ack
+- 4. chan-open-confirm
+- 5. Query channel
+7. Transactions
 
-# 0.Relaying overwiew
+# Relaying overwiew
 
 #### What is Hermes?
 As we could see, [Hermes](https://hermes.informal.systems/relayer.html) is a an open-source Rust implementation of a relayer for the Inter-Blockchain Communication protocol (IBC).
@@ -207,6 +213,12 @@ For each chains we need the parameters below:
 Example Configuration File fo Hermes https://hermes.informal.systems/example-config.html
 About config. TLS connection https://hermes.informal.systems/config.html#connecting-via-tls
 #### For SEI network:
+There we will set the variables that we need to conveniently create a config file for Hermes.
+
+Please insert your values for:
+- `<sei_node_ip>`
+- `<sei_rpc_port>`
+- `<sei_grpc_port>`
 ```
 chain_id_SEI="atlantic-1"
 rpc_addr_SEI="http://<sei_node_ip>:<sei_rpc_port>"
@@ -232,7 +244,12 @@ gas_price_SEI="0.001"
 ```
 
 #### For StaFiHub network:
+Now let's set the variables for Stafi chain.
 
+Please insert your values for:
+- `<sei_node_ip>`
+- `<sei_rpc_port>`
+- `<sei_grpc_port>`
 ```
 chain_id_Stafihub="stafihub-public-testnet-3"
 rpc_addr_Stafihub="http://<sei_node_ip>:<sei_rpc_port>"
@@ -377,107 +394,159 @@ EOF
 hermes keys add --chain ${chain_id_SEI} --mnemonic-file $HOME/.hermes/${chain_id_SEI}.mnemonic
 hermes keys add --chain ${chain_id_Stafihub} --mnemonic-file $HOME/.hermes/${chain_id_Stafihub}.mnemonic
 ```
-## Clients. Connections. Channels.
-#### Identifiers
-First make sure you followed the steps in the [start the local chains](https://hermes.informal.systems/tutorials/local-chains/start.html) and [Identifiers](https://hermes.informal.systems/tutorials/local-chains/identifiers.html) section
-
-
-#### 1 Identifiers
-https://hermes.informal.systems/tutorials/local-chains/identifiers.html
-
-Create your `sei-->stafihub` client
+# Configure clients
+The identifiers that will be in the commands below are given as an example. You will have your value.
+- https://github.com/informalsystems/hermes-ibc-workshop/blob/main/docs/clients.md
+- https://hermes.informal.systems/tutorials/local-chains/raw/client.html
+### create-client
+#### Create a stafihub client on sei
 ```
 hermes tx raw create-client --host-chain atlantic-1 --reference-chain stafihub-public-testnet-3
 ```
-![Снимок экрана от 2022-07-29 21-32-43](https://user-images.githubusercontent.com/30211801/181814003-7812b4f0-c2e1-4ff8-a5cf-b1c450727823.png)
-Query `sei-->stafihub` client, with your client_id (in the transaction below there will be my information just for examples)
-```
-hermes query client state --chain atlantic-1 --client 07-tendermint-613
-```
-Create your `stafihub-->sei` client
+![Снимок экрана от 2022-07-31 22-42-44](https://user-images.githubusercontent.com/30211801/182040736-3fbca524-5a5d-4202-a33a-ac2cb7c28f21.png)
+Here we get `07-tendermint-626`
+#### Create a sei client on stafihub
 ```
 hermes tx raw create-client --host-chain stafihub-public-testnet-3 --reference-chain atlantic-1
 ```
-![Снимок экрана от 2022-07-29 21-38-16](https://user-images.githubusercontent.com/30211801/181814741-8dd9b5ab-e6a1-4342-bf70-ef413173d274.png)
-Query `stafihub-->sei` client, with your client_id
-```
-hermes query client state --chain stafihub-public-testnet-3 --client 07-tendermint-44
-```
-Update your `sei-->stafihub` client
-```
-hermes tx raw update-client --host-chain atlantic-1 --client 07-tendermint-613
-```
-![Снимок экрана от 2022-07-29 21-43-57](https://user-images.githubusercontent.com/30211801/181815590-d5161b16-bac2-436d-9d63-5ea240738cbb.png)
+![Снимок экрана от 2022-07-31 22-45-20](https://user-images.githubusercontent.com/30211801/182040804-6be04d2b-5939-4844-883b-69fe284de4bc.png)
+We get `07-tendermint-49`
 
-Update your `stafihub-->sei` client
+### Query client state
+a stafihub client on sei
 ```
-hermes tx raw update-client --host-chain stafihub-public-testnet-3 --client 07-tendermint-44
+hermes query client state --chain atlantic-1 --client 07-tendermint-626
 ```
-![Снимок экрана от 2022-07-29 21-45-00](https://user-images.githubusercontent.com/30211801/181815752-36e2edf8-71cb-4229-9b82-ca0cb2f88719.png)
+a sei client on stafihub
+```
+hermes query client state --chain stafihub-public-testnet-3 --client 07-tendermint-49
+```
+### update-client
+#### Update the stafihub client on sei
+```
+hermes tx raw update-client --host-chain atlantic-1 --client 07-tendermint-626
+```
+![Снимок экрана от 2022-07-31 22-48-47](https://user-images.githubusercontent.com/30211801/182040889-e23667a8-1d85-487e-a5e9-d1af4baf2cb7.png)
 
-#### 2. Connection Handshake
-Create `sei-->stafihub` connection 
+#### Update the sei client on stafihub
 ```
-hermes tx raw conn-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-613 --src-client 07-tendermint-44
+hermes tx raw update-client --host-chain stafihub-public-testnet-3 --client 07-tendermint-49
 ```
-![Снимок экрана от 2022-07-29 21-46-49](https://user-images.githubusercontent.com/30211801/181816033-c24255cb-a17d-4cab-b1c6-053f75b7e5f7.png)
-here we are : `connection-287`
+![Снимок экрана от 2022-07-31 22-49-16](https://user-images.githubusercontent.com/30211801/182040908-70d6f7e2-5b33-4687-ad3e-09d074fd5fea.png)
 
-Create `stafihub-->sei` connection 
+# Connection Handshake
+### conn-init
 ```
-hermes tx raw conn-init --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-client 07-tendermint-44 --src-client 07-tendermint-613
+hermes tx raw conn-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-626 --src-client 07-tendermint-49
 ```
-![Снимок экрана от 2022-07-29 21-49-00](https://user-images.githubusercontent.com/30211801/181816324-7347cdfa-4abd-4487-a6fc-f3a4d6deb29f.png)
-here we are : `connection-31`
+![Снимок экрана от 2022-07-31 22-51-35](https://user-images.githubusercontent.com/30211801/182041010-07d1299e-bd62-4b88-94a5-a2bbef80157b.png)
 
-Conn-try `stafihub-->sei`
+We get `connection-299`
+### conn-try
 ```
-hermes tx raw conn-try --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-613 --src-client 07-tendermint-44 --src-conn connection-31
+hermes tx raw conn-try --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-client 07-tendermint-49 --src-client 07-tendermint-626 --src-conn connection-299
 ```
-![Снимок экрана от 2022-07-29 22-01-53](https://user-images.githubusercontent.com/30211801/181818302-5d33b97d-88d0-4712-afcf-95c910ef61c1.png)
+![Снимок экрана от 2022-07-31 22-53-09](https://user-images.githubusercontent.com/30211801/182041046-d5122ace-3070-4d2a-9180-1cc32df763d7.png)
 
-Strange. There is an Error, but transection [46D553C9A1E3B4A08BCC4F13F8DFEAF9275C2A13F5F4568BC4FD6EDD4710DDFD](https://testnet-explorer.stafihub.io/stafi-hub-testnet/tx/46D553C9A1E3B4A08BCC4F13F8DFEAF9275C2A13F5F4568BC4FD6EDD4710DDFD) is successful.   
-Log of error:
+We get `connection-35`
+### conn-ack
 ```
-2022-07-29T17:53:30.815480Z  INFO ThreadId(01) using default configuration from '/root/.hermes/config.toml'
-2022-07-29T17:53:33.144783Z  INFO ThreadId(14) wait_for_block_commits: waiting for commit of tx hashes(s) 46D553C9A1E3B4A08BCC4F13F8DFEAF9275C2A13F5F4568BC4FD6EDD4710DDFD id=stafihub-public-testnet-3
-Error: connection error: failed to build connection proofs: bad connection state
+hermes tx raw conn-ack --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-626 --src-client 07-tendermint-49 --dst-conn connection-299 --src-conn connection-35
 ```
-Conn-try `sei-->stafihub`
-```
-hermes tx raw conn-try --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-client 07-tendermint-44 --src-client 07-tendermint-613 --src-conn connection-287
-```
-There is an Error, but transection [3A9A9EF8C07D95AC4BAE25619975BE92FF18C87DF72A27566615414B03E88C59](https://sei.explorers.guru/transaction/3A9A9EF8C07D95AC4BAE25619975BE92FF18C87DF72A27566615414B03E88C59) is successful.   
-Log of error:
-```
-2022-07-29T18:03:14.460739Z  INFO ThreadId(01) using default configuration from '/root/.hermes/config.toml'
-2022-07-29T18:03:20.465310Z  INFO ThreadId(14) wait_for_block_commits: waiting for commit of tx hashes(s) 3A9A9EF8C07D95AC4BAE25619975BE92FF18C87DF72A27566615414B03E88C59 id=atlantic-1
-Error: connection error: failed to build connection proofs: bad connection state
-```
+![Снимок экрана от 2022-07-31 22-55-03](https://user-images.githubusercontent.com/30211801/182041098-7a9d4338-c863-42f1-9acb-33451619d941.png)
 
-Init channel
+### conn-confirm
 ```
-hermes tx raw chan-open-init --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-conn connection-31 --dst-port transfer --src-port transfer --order UNORDERED
+hermes tx raw conn-confirm --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-client 07-tendermint-49 --src-client 07-tendermint-626 --dst-conn connection-35 --src-conn connection-299
 ```
-![Снимок экрана от 2022-07-29 22-51-37](https://user-images.githubusercontent.com/30211801/181825652-b1379991-f210-4e5f-9faf-31c190be8c54.png)
-Here is the `channel-26` created
+![Снимок экрана от 2022-07-31 22-55-42](https://user-images.githubusercontent.com/30211801/182041126-fb0a2439-52aa-40a7-b5b4-9586432839f9.png)
 
+### Query connection
+Now we should have both connection states `Open`
+first
 ```
-hermes tx raw chan-open-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-conn connection-287 --dst-port transfer --src-port transfer --order UNORDERED
+hermes query connection end --chain atlantic-1 --connection connection-299
 ```
-![Снимок экрана от 2022-07-29 22-53-29](https://user-images.githubusercontent.com/30211801/181825926-0b65fd6f-2f5a-4ffd-81a6-48d3787668a1.png)
-Here is the `channel-264` created
+![Снимок экрана от 2022-07-31 22-58-04](https://user-images.githubusercontent.com/30211801/182041188-ed5ae1a8-89e1-4688-97f0-bb8313eca40f.png)
+
+second
+```
+hermes query connection end --chain stafihub-public-testnet-3 --connection connection-35
+```
+![Снимок экрана от 2022-07-31 22-58-27](https://user-images.githubusercontent.com/30211801/182041198-5e20f843-2796-4a07-b703-f6be54b40630.png)
 
 
+# Channel Handshake
+### chan-open-init
 ```
-hermes tx raw conn-ack --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-613 --src-client 07-tendermint-44 --dst-conn connection-287 --src-conn connection-31
+hermes tx raw chan-open-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-conn connection-299 --dst-port transfer --src-port transfer --order UNORDERED
 ```
-![Снимок экрана от 2022-07-29 23-02-24](https://user-images.githubusercontent.com/30211801/181827258-beefdb46-4767-4364-9c52-a29cc8617891.png)
-Logs of command:
+![Снимок экрана от 2022-07-31 23-02-57](https://user-images.githubusercontent.com/30211801/182041317-c82a233d-fe2f-4436-815a-25dbf5cdcac4.png)
+We get `channel-276`
+
+### chan-open-try
 ```
-root@nb3c732:~# hermes tx raw chan-open-try --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-conn connection-287 --dst-port transfer --src-port transfer --src-chan channel-26
-2022-07-29T18:56:53.959813Z  INFO ThreadId(01) using default configuration from '/root/.hermes/config.toml'
-2022-07-29T18:56:54.214083Z  INFO ThreadId(01) Message ChanOpenTry: Channel { ordering: Unordered, a_side: ChannelSide { chain: BaseChainHandle { chain_id: ChainId { id: "stafihub-public-testnet-3", version: 3 }, runtime_sender: Sender { .. } }, client_id: ClientId("07-tendermint-0"), connection_id: ConnectionId("connection-0"), port_id: PortId("transfer"), channel_id: Some(ChannelId("channel-26")), version: None }, b_side: ChannelSide { chain: BaseChainHandle { chain_id: ChainId { id: "atlantic-1", version: 1 }, runtime_sender: Sender { .. } }, client_id: ClientId("07-tendermint-613"), connection_id: ConnectionId("connection-287"), port_id: PortId("transfer"), channel_id: None, version: None }, connection_delay: 0ns }
-2022-07-29T18:57:03.271639Z ERROR ThreadId(27) send_tx_with_account_sequence_retry{id=atlantic-1}:estimate_gas: failed to simulate tx. propagating error to caller: gRPC call failed with status: status: Unknown, message: "failed to execute message; message index: 1: channel handshake open try failed: channel fields mismatch previous channel fields: invalid channel", details: [], metadata: MetadataMap { headers: {"content-type": "application/grpc", "x-cosmos-block-height": "1469499"} }
-Error: channel error: failed during a transaction submission step to chain 'atlantic-1': gRPC call failed with status: status: Unknown, message: "failed to execute message; message index: 1: channel handshake open try failed: channel fields mismatch previous channel fields: invalid channel", details: [], metadata: MetadataMap { headers: {"content-type": "application/grpc", "x-cosmos-block-height": "1469499"} }
+hermes tx raw chan-open-try --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-conn connection-35 --dst-port transfer --src-port transfer --src-chan channel-276
 ```
+![Снимок экрана от 2022-07-31 23-04-10](https://user-images.githubusercontent.com/30211801/182041343-772b635f-1c89-47f9-81b5-39471953b75e.png)
+We get `channel-30`
+### chan-open-ack
+```
+hermes tx raw chan-open-ack --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-conn connection-299 --dst-port transfer --src-port transfer --dst-chan channel-276 --src-chan channel-30
+```
+![Снимок экрана от 2022-07-31 23-06-51](https://user-images.githubusercontent.com/30211801/182041433-f7b21d7b-1e4d-44c0-acfd-8b28c62045fd.png)
+
+### chan-open-confirm
+```
+hermes tx raw chan-open-confirm --dst-chain stafihub-public-testnet-3 --src-chain atlantic-1 --dst-conn connection-35 --dst-port transfer --src-port transfer --dst-chan channel-30 --src-chan channel-276
+```
+![Снимок экрана от 2022-07-31 23-05-13](https://user-images.githubusercontent.com/30211801/182041381-e775fe3d-1060-4e90-9ddd-96175e9b9d8a.png)
+
+### Query channel
+```
+hermes query channel end --chain atlantic-1 --port transfer --channel channel-276
+```
+![Снимок экрана от 2022-07-31 23-07-23](https://user-images.githubusercontent.com/30211801/182041449-b67b00de-b787-4f47-846a-fe3ac325cf2b.png)
+```
+hermes query channel end --chain stafihub-public-testnet-3 --port transfer --channel channel-30
+```
+![Снимок экрана от 2022-07-31 23-07-56](https://user-images.githubusercontent.com/30211801/182041470-81cada2f-346a-4e3f-97d8-aeb8b9f1bdea.png)
+
+
+# Transactions
+```
+hermes tx raw ft-transfer \
+--dst-chain  atlantic-1 \
+--src-chain stafihub-public-testnet-3 \
+--src-port transfer \
+--src-channel channel-30 \
+--amount 999 \
+--timeout-height-offset 1000 \
+--number-msgs 1 \
+--denom ufis
+```
+![Снимок экрана от 2022-07-31 23-09-06](https://user-images.githubusercontent.com/30211801/182041511-b6d56522-3f68-4886-9e54-586b29129ac7.png)
+
+Txhash: https://testnet-explorer.stafihub.io/stafi-hub-testnet/tx/B5EE927456B0B2A3E3CD1AE4CE3BA3311FB1B6AA716D04A3A9E98804E61DFB0A
+
+```
+hermes tx raw ft-transfer \
+--dst-chain  stafihub-public-testnet-3 \
+--src-chain atlantic-1 \
+--src-port transfer \
+--src-channel channel-276 \
+--amount 10000 \
+--timeout-height-offset 1000 \
+--number-msgs 1 \
+--denom usei
+```
+![Снимок экрана от 2022-07-31 23-10-02](https://user-images.githubusercontent.com/30211801/182041527-e7356ac0-7815-42af-b79a-e612293e871e.png)
+
+Txhash: https://sei.explorers.guru/transaction/62D9A43406B98ADB6C5257567E47E0151F526FE9ABA74B22E3828874CB3C0218
+
+
+# There is my identifiers for SEI <--> StaFiHub
+**atlantic-1:** 07-tendermint-626 | connection-299 | channel-276
+**stafihub-public-testnet-3:** 07-tendermint-49 | connection-35 | channel-30
+
+Thank you for reading.
