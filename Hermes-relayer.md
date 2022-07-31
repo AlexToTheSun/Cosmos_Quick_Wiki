@@ -547,6 +547,7 @@ Txhash: https://sei.explorers.guru/transaction/62D9A43406B98ADB6C5257567E47E0151
 
 # There is my identifiers for SEI <--> StaFiHub
 **atlantic-1:** 07-tendermint-626 | connection-299 | channel-276
+
 **stafihub-public-testnet-3:** 07-tendermint-49 | connection-35 | channel-30
 
 Thank you for reading.
