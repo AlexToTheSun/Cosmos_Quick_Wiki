@@ -5,43 +5,49 @@
 - [An Overview of The Interblockchain Communication Protocol](https://arxiv.org/pdf/2006.15918.pdf)
 
 ## Table of contents
-1. Relaying overwiew
-2. Configure opend RPC nodes and Fund keys
-3. Install and configure Hermes
-4. Configure clients
-- 1. create-client
-- 2. client state
-- 3. update-client
-- 4. Query client
-5. Connection Handshake
-- 1. conn-init
-- 2. conn-try
-- 3. conn-ack
-- 4. conn-confirm
-- 5. Query connection
-6. Channel Handshake
-- 1. chan-open-init
-- 2. chan-open-try
-- 3. chan-open-ack
-- 4. chan-open-confirm
-- 5. Query channel
-7. Transactions
+1. [Relaying overwiew](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#relaying-overwiew)
+2. [Configure opend RPC nodes and Fund keys](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#configure-opend-rpc-nodes-and-fund-keys)
+- 1. [SEI RPC node](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#sei-network-configure-opend-rpc-node)
+- 2. [StaFiHub RPC node](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#stafihub-configure-opend-rpc-node)
+3. [Install and configure Hermes](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#install-and-configure-hermes)
+- 1. [Install Hermes](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#install-hermes-by-downloading)
+- 2. [Hermes Configuration](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#hermes-configuration)
+- 3. [Adding private keys](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#adding-private-keys)
+4. [Configure new clients](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#configure-clients)
+- 1. [Create-client](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#create-client)
+- 2. [Query client state](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#query-client-state)
+- 3. [Update-client](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#update-client)
+5. [Connection Handshake](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#connection-handshake)
+- 1. [Conn-init](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#conn-init)
+- 2. [Conn-try](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#conn-try)
+- 3. [Conn-ack](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#conn-ack)
+- 4. [Conn-confirm](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#conn-confirm)
+- 5. [Query connection](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#query-connection)
+6. [Channel Handshake](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#channel-handshake)
+- 1. [chan-open-init](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#chan-open-init)
+- 2. [chan-open-try](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#chan-open-try)
+- 3. [chan-open-ack](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#chan-open-ack)
+- 4. [chan-open-confirm](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#chan-open-confirm)
+- 5. [Query channel](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#query-channel)
+7. [Transactions](https://github.com/AlexToTheSun/Cosmos_Quick_Wiki/blob/main/Hermes-relayer.md#transactions)
 
 # Relaying overwiew
 
-#### What is Hermes?
+### What is Hermes?
 As we could see, [Hermes](https://hermes.informal.systems/relayer.html) is a an open-source Rust implementation of a relayer for the Inter-Blockchain Communication protocol (IBC).
 
 Hermes is a relayer CLI (i.e., a binary). It is not the same as the relayer core library (that is the crate called [ibc-relayer](https://crates.io/crates/ibc-relayer)).
 
 An IBC relayer is an off-chain process responsible for relaying IBC datagrams between any two Cosmos chains.
 
-#### How does an IBC relayer work?
+There is a [YouTube instruction](https://www.youtube.com/watch?v=_xQDTj1PcEw) in which [Andy Nogueira](https://github.com/andynog) explains all the intricacies of Hermes work.
+
+### How does an IBC relayer work?
 1. scanning chain states
 2. building transactions based on these states
 3. submitting the transactions to the chains involved in the network.
 
-#### So what we need to relaying?
+### So what we need to relaying?
 1. Configure opend RPC nodes (or use already configured by other people) of the chains you want to relay between.
 2. Fund keys of the chains you want to relay between for paying relayer fees.
 3. Configure Hermes.
@@ -51,10 +57,11 @@ We will configure Hermes to operate between **StaFiHub** and **SEI Network** in 
 ## SEI Network. Configure opend RPC node.
 Now (29 july 2022) current testnet chain for SEI Network is:
 - `atlantic-1`
-1. Run your own SEI RPC node [[Instructions](https://github.com/AlexToTheSun/Validator_Activity/blob/main/Testnet-guides/SEI-testnet-devnet/SEI_atlantic-1.md#instructions)]
+1. **Run your own SEI RPC node [[Instructions](https://github.com/AlexToTheSun/Validator_Activity/blob/main/Testnet-guides/SEI-testnet-devnet/SEI_atlantic-1.md#instructions)]**
 
-You should wait until status synchronization is true. No need to create a validator!
-2. Configure node for using it by Hermes:
+You should wait until the synchronization status becomes false. No need to create a validator!
+
+2. **Configure node for using it by Hermes:**
 ```
 sed -i.bak -e "s/^indexer *=.*/indexer = \""kv"\"/" $HOME/.sei/config/config.toml
 sed -i.bak -E "s|^(pex[[:space:]]+=[[:space:]]+).*$|\1true|" $HOME/.sei/config/config.toml
@@ -104,10 +111,11 @@ Use SEI testnet faucet for funding your wallet that you will use for Hermes. It 
 ## StaFiHub. Configure opend RPC node.
 Now (29 july 2022) current testnet chain for StaFiHub is:
 - `stafihub-public-testnet-3`
-1. Run your own StaFiHub RPC node [[Instructions](https://github.com/AlexToTheSun/Validator_Activity/blob/main/Testnet-guides/StafiHub/Basic-Installation.md#install-stafihub)]
+1. **Run your own StaFiHub RPC node [[Instructions](https://github.com/AlexToTheSun/Validator_Activity/blob/main/Testnet-guides/StafiHub/Basic-Installation.md#install-stafihub)]**
 
-You should wait until status synchronization is true. No need to create a validator!
-2. Configure node for using it by Hermes:
+You should wait until the synchronization status becomes false. No need to create a validator!
+
+2. **Configure node for using it by Hermes:**
 ```
 sed -i.bak -e "s/^indexer *=.*/indexer = \""kv"\"/" $HOME/.stafihub/config/config.toml
 sed -i.bak -E "s|^(pex[[:space:]]+=[[:space:]]+).*$|\1true|" $HOME/.stafihub/config/config.toml
@@ -212,7 +220,7 @@ For each chains we need the parameters below:
 
 Example Configuration File fo Hermes https://hermes.informal.systems/example-config.html
 About config. TLS connection https://hermes.informal.systems/config.html#connecting-via-tls
-#### For SEI network:
+### For SEI network:
 There we will set the variables that we need to conveniently create a config file for Hermes.
 
 Please insert your values for:
@@ -243,18 +251,18 @@ max_tx_size_SEI="2097152"
 gas_price_SEI="0.001"
 ```
 
-#### For StaFiHub network:
+### For StaFiHub network:
 Now let's set the variables for Stafi chain.
 
 Please insert your values for:
-- `<sei_node_ip>`
-- `<sei_rpc_port>`
-- `<sei_grpc_port>`
+- `<stafi_node_ip>`
+- `<stafi_rpc_port>`
+- `<stafi_grpc_port>`
 ```
 chain_id_Stafihub="stafihub-public-testnet-3"
-rpc_addr_Stafihub="http://<sei_node_ip>:<sei_rpc_port>"
-grpc_addr_Stafihub="http://<sei_node_ip>:<sei_grpc_port>"
-websocket_addr_Stafihub="ws://<sei_node_ip>:<sei_rpc_port>/websocket"
+rpc_addr_Stafihub="http://<stafi_node_ip>:<sei_rpc_port>"
+grpc_addr_Stafihub="http://<stafi_node_ip>:<sei_grpc_port>"
+websocket_addr_Stafihub="ws://<stafi_node_ip>:<sei_rpc_port>/websocket"
 account_prefix_Stafihub="stafi"
 trusting_period_Stafihub="16h"
 denom_Stafihub="ufis"
@@ -273,7 +281,9 @@ denom_Stafihub="ufis"
 max_tx_size_Stafihub="180000"
 gas_price_Stafihub="0.01"
 ```
-#### Specify relayer name
+### Specify relayer name
+Please insert your values for:
+- `<your_relayer_name>`
 ```
 relayer_name="<your_relayer_name>"
 ```
@@ -365,7 +375,7 @@ trust_threshold = { numerator = '1', denominator = '3' }
 memo_prefix = '${relayer_name} Relayer'
 EOF
 ```
-#### Performs a health check of all chains in the the config
+### Performs a health check of all chains in the the config
 After you create a config, checking is required:
 ```
 hermes health-check
@@ -378,12 +388,12 @@ At this stage, problems may arise, and it is very important for us to solve them
 
 You need to add a private key for each chain. After that Hermes will be enabled to submit [transactions](https://hermes.informal.systems/commands/tx/index.html).
 
-In our example you should add SEI and StafiHub keys. The `key_name` parameter from Hermes `config.toml`, is the name of the key that will be added after restoring Keys.
+In our example you should add **SEI** and **StafiHub** keys. The `key_name` parameter from Hermes `config.toml`, is the name of the key that will be added after restoring Keys.
 
 ```
-MNEMONIC_SEI='speed rival market sure decade call silly flush derive story state menu inflict catalog habit swallow anxiety lumber siege fuel engage kite dad harsh'
+MNEMONIC_SEI="speed rival market sure decade call silly flush derive story state menu inflict catalog habit swallow anxiety lumber siege fuel engage kite dad harsh"
 
-MNEMONIC_STAFIHUB='speed rival market sure decade call silly flush derive story state menu inflict catalog habit swallow anxiety lumber siege fuel engage kite dad harsh'
+MNEMONIC_STAFIHUB="speed rival market sure decade call silly flush derive story state menu inflict catalog habit swallow anxiety lumber siege fuel engage kite dad harsh"
 
 sudo tee $HOME/.hermes/${chain_id_SEI}.mnemonic > /dev/null <<EOF
 ${MNEMONIC_SEI}
@@ -395,10 +405,13 @@ hermes keys add --chain ${chain_id_SEI} --mnemonic-file $HOME/.hermes/${chain_id
 hermes keys add --chain ${chain_id_Stafihub} --mnemonic-file $HOME/.hermes/${chain_id_Stafihub}.mnemonic
 ```
 # Configure clients
-The identifiers that will be in the commands below are given as an example. You will have your value.
+Source:
 - https://github.com/informalsystems/hermes-ibc-workshop/blob/main/docs/clients.md
 - https://hermes.informal.systems/tutorials/local-chains/raw/client.html
+
+The identifiers that will be in the commands below are given as an example. You will have your value.
 ### create-client
+
 #### Create a stafihub client on sei
 ```
 hermes tx raw create-client --host-chain atlantic-1 --reference-chain stafihub-public-testnet-3
@@ -435,6 +448,9 @@ hermes tx raw update-client --host-chain stafihub-public-testnet-3 --client 07-t
 ![Снимок экрана от 2022-07-31 22-49-16](https://user-images.githubusercontent.com/30211801/182040908-70d6f7e2-5b33-4687-ad3e-09d074fd5fea.png)
 
 # Connection Handshake
+Source:
+- https://github.com/informalsystems/hermes-ibc-workshop/blob/main/docs/connection.md
+- https://hermes.informal.systems/tutorials/local-chains/raw/connection.html
 ### conn-init
 ```
 hermes tx raw conn-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-client 07-tendermint-626 --src-client 07-tendermint-49
@@ -477,6 +493,9 @@ hermes query connection end --chain stafihub-public-testnet-3 --connection conne
 
 
 # Channel Handshake
+Source:
+- https://github.com/informalsystems/hermes-ibc-workshop/blob/main/docs/channel.md
+- https://hermes.informal.systems/tutorials/local-chains/raw/channel.html
 ### chan-open-init
 ```
 hermes tx raw chan-open-init --dst-chain atlantic-1 --src-chain stafihub-public-testnet-3 --dst-conn connection-299 --dst-port transfer --src-port transfer --order UNORDERED
@@ -514,6 +533,11 @@ hermes query channel end --chain stafihub-public-testnet-3 --port transfer --cha
 
 
 # Transactions
+Source:
+- https://github.com/informalsystems/hermes-ibc-workshop/blob/main/docs/relay.md
+- https://hermes.informal.systems/tutorials/local-chains/raw/packet.html
+
+Now we will send 999 ufis from StafiHub chain to StafiHub client generated on SEI chain.
 ```
 hermes tx raw ft-transfer \
 --dst-chain  atlantic-1 \
@@ -529,6 +553,7 @@ hermes tx raw ft-transfer \
 
 Txhash: https://testnet-explorer.stafihub.io/stafi-hub-testnet/tx/B5EE927456B0B2A3E3CD1AE4CE3BA3311FB1B6AA716D04A3A9E98804E61DFB0A
 
+Here we will send 10000 usei from SEI chain to StafiHub chain (namely to SEI client generated on StafiHub chain)
 ```
 hermes tx raw ft-transfer \
 --dst-chain  stafihub-public-testnet-3 \
@@ -546,8 +571,18 @@ Txhash: https://sei.explorers.guru/transaction/62D9A43406B98ADB6C5257567E47E0151
 
 
 # There is my identifiers for SEI <--> StaFiHub
-**atlantic-1:** 07-tendermint-626 | connection-299 | channel-276
-
-**stafihub-public-testnet-3:** 07-tendermint-49 | connection-35 | channel-30
+```
+sei:
+      chain-id: atlantic-1
+      client-id: 07-tendermint-626
+      connection-id: connection-299
+      channel-id: channel-276
+      
+stafihub:
+      chain-id: stafihub-public-testnet-3
+      client-id: 07-tendermint-49
+      connection-id: connection-35
+      channel-id: channel-30
+```
 
 Thank you for reading.
