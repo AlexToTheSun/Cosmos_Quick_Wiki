@@ -260,9 +260,9 @@ Please insert your values for:
 - `<stafi_grpc_port>`
 ```
 chain_id_Stafihub="stafihub-public-testnet-3"
-rpc_addr_Stafihub="http://<stafi_node_ip>:<sei_rpc_port>"
-grpc_addr_Stafihub="http://<stafi_node_ip>:<sei_grpc_port>"
-websocket_addr_Stafihub="ws://<stafi_node_ip>:<sei_rpc_port>/websocket"
+rpc_addr_Stafihub="http://<stafi_node_ip>:<stafi_rpc_port>"
+grpc_addr_Stafihub="http://<stafi_node_ip>:<stafi_grpc_port>"
+websocket_addr_Stafihub="ws://<stafi_node_ip>:<stafi_rpc_port>/websocket"
 account_prefix_Stafihub="stafi"
 trusting_period_Stafihub="16h"
 denom_Stafihub="ufis"
