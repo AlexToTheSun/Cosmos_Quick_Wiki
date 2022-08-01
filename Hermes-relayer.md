@@ -382,6 +382,30 @@ hermes health-check
 ```
 At this stage, problems may arise, and it is very important for us to solve them. After that, let's move on to the next steps.
 
+### Create service file for Hermes
+```
+sudo tee /etc/systemd/system/hermesd.service > /dev/null <<EOF
+[Unit]
+Description=hermes
+After=network-online.target
+[Service]
+User=$USER
+ExecStart=$(which hermes) start
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+Start hermes and see logs
+```
+sudo systemctl daemon-reload
+sudo systemctl enable hermesd
+sudo systemctl restart hermesd
+journalctl -u hermesd -f -o cat
+```
+
 ## Adding private keys
 - Official instruction of Adding private keys - https://hermes.informal.systems/commands/keys/index.html
 - Transactions - https://hermes.informal.systems/commands/tx/index.html
