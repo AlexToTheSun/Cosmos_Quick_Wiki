@@ -2,6 +2,11 @@
 The blockchain grows in size over time. The filling rate of an SSD depends on the block production rate, the number of transactions in each block, the blockchain log settings, etc. 
 Below are practical tips that will help you slow down the growth of the blockchain on servers 10 times.
 
+## Universal One-line install script for all COSMOS chains:
+```
+wget -O disc-optimization.sh https://raw.githubusercontent.com/AlexToTheSun/Cosmos_Quick_Wiki/main/Scripts/Disk-Usage-Optimisation.sh && chmod +x disc-optimization.sh && ./disc-optimization.sh
+```
+
 # Editing `config.toml`
 Let's start the setup by adjusting parameters of the file `$HOME/.axelar/config/config.toml`
 
