@@ -10,6 +10,11 @@ read -p "Type bech_validator_prefix of your project (haqqvaloper): " bech_valida
 read -p "Type bech_validator_pubkey_prefix of your project (haqqvaloperpub): " bech_validator_pubkey_prefix
 read -p "Type bech_consensus_node_prefix of your project (haqqvalcons): " bech_consensus_node_prefix
 read -p "Type bech_consensus_node_pubkey_prefix of your project (haqqvalconspub): " bech_consensus_node_pubkey_prefix
+# bech_prefix=haqq
+# bech_validator_prefix=haqqvaloper
+# bech_validator_pubkey_prefix=haqqvaloperpub
+# bech_consensus_node_prefix=haqqvalcons
+# bech_consensus_node_pubkey_prefix=haqqvalconspub
 echo $bech_prefix
 echo $mintscan_prefix
 echo $bech_validator_prefix
