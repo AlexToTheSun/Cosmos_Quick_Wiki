@@ -11,7 +11,7 @@
 # otritsanie !: https://g-soft.info/articles/7293/bash-proverit-pusta-li-peremennaya/
 # https://www.opennet.ru/docs/RUS/bash_scripting_guide/c2171.html
 echo 'Module: Change the password'
-sleep 2
+sleep 1
 read -p "Do you wish to Change the password? (y/n): " your_answer
   case $your_answer in
     [Yy]* ) passwd
@@ -21,26 +21,10 @@ read -p "Do you wish to Change the password? (y/n): " your_answer
     [Nn]* )
     ;;
   esac
-sleep 2
-
-echo "Module: Change the SSH port"
-sleep 2
-read -p "Do you wish to Change the SSH port? (y/n): " your_answer
-  case $your_answer in
-    [Yy]* ) read -p "Type your new SSH port: " ssh_port;
-    echo 'export ssh_port='$ssh_port >> $HOME/.bash_profile
-    . ~/.bash_profile
-    sed -i.bak -e "s/^Port *=.*/Port = ssh_port/" /etc/ssh/sshd_config
-    sudo ufw allow $ssh_port/tcp
-    sudo ufw deny 22
-    ;;
-    [Nn]* )
-    ;;
-  esac
-sleep 2
+sleep 1
 
 echo 'Module: Firewall configuration'
-sleep 2
+sleep 1
 read -p "Do you wish to do Firewall' configuration? (y/n): " your_answer
   if [[ "$your_answer" == [Yy]* ]]; 
   #  don't work "^[Yy]*" with "" and ^
@@ -76,6 +60,43 @@ read -p "Do you wish to do Firewall' configuration? (y/n): " your_answer
     echo "Go to the next module"
   fi
 
+echo "Module: Change the SSH port"
+sleep 1
+read -p "Do you wish to Change the SSH port? (y/n): " your_answer
+  case $your_answer in
+    [Yy]* ) read -p "Type your new SSH port: " ssh_port;
+    echo 'export ssh_port='$ssh_port >> $HOME/.bash_profile
+    . ~/.bash_profile
+    sed -i.bak -e "s/^Port *=.*/Port = ${ssh_port}/" /etc/ssh/sshd_config
+    sudo ufw allow ${ssh_port}/tcp
+    sudo ufw deny 22
+    ;;
+    [Nn]* )
+    ;;
+  esac
+sleep 1
+
+echo "Module: Change the SSH port"
+sleep 1
+read -p "Do you wish to Install File2ban? (y/n): " your_answer
+  case $your_answer in
+    [Yy][Ee][Ss] ) 
+    sudo apt install fail2ban
+    sudo systemctl start fail2ban
+    sudo systemctl enable fail2ban
+    file2ban_conf=/etc/fail2ban/jail.conf
+    sed -i.bak -e "s/^bantime *=.*/bantime = 5m/" ${file2ban_conf}
+    sed -i.bak -e "s/^findtime *=.*/findtime = 5m/" ${file2ban_conf}
+    sed -i.bak -e "s/^maxretry *=.*/maxretry = 7/" ${file2ban_conf}
+    sed -i.bak -e "s/^logpath *=.*/logpath = "/var/log/sshd_log"/" ${file2ban_conf}
+    sudo systemctl reload fail2ban
+    sudo systemctl status fail2ban
+    echo "You could check fail2ban' logs: journalctl -b -u fail2ban"
+    ;;
+    [Nn][Oo] )
+    ;;
+  esac
+sleep 1
 
 
 
