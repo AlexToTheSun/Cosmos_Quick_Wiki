@@ -23,6 +23,22 @@ read -p "Do you wish to Change the password? (y/n): " your_answer
   esac
 sleep 1
 
+echo "Module: Change the SSH port"
+sleep 1
+read -p "Do you wish to Change the SSH port? (y/n): " your_answer
+  case $your_answer in
+    [Yy]* ) read -p "Type your new SSH port: " ssh_port;
+    echo 'export ssh_port='$ssh_port >> $HOME/.bash_profile
+    . ~/.bash_profile
+    sed -i.bak -e "s/^Port *=.*/Port = ${ssh_port}/" /etc/ssh/sshd_config
+    sudo ufw allow ${ssh_port}/tcp
+    sudo ufw deny 22
+    ;;
+    [Nn]* )
+    ;;
+  esac
+sleep 1
+
 echo 'Module: Firewall configuration'
 sleep 1
 read -p "Do you wish to do Firewall' configuration? (y/n): " your_answer
@@ -41,7 +57,7 @@ read -p "Do you wish to do Firewall' configuration? (y/n): " your_answer
     read -p "Type your node' gRPC Port ( by default 9090): " gRPC_port
     read -p "Type your node' gRPC-web Port ( by default 9091): " gRPC_web_port
     sudo ufw allow $ssh_port/tcp
-    sudo ufw deny 22
+    # sudo ufw deny 22
     sudo ufw allow $api_port
     sudo ufw allow $p2p_port
     sudo ufw allow $rpc_port
@@ -58,23 +74,8 @@ read -p "Do you wish to do Firewall' configuration? (y/n): " your_answer
   elif [[ "$your_answer" == [Nn]* ]];
     then
     echo "Go to the next module"
+    echo "You could deny standart ssh port if you've changed it: sudo ufw deny 22"
   fi
-
-echo "Module: Change the SSH port"
-sleep 1
-read -p "Do you wish to Change the SSH port? (y/n): " your_answer
-  case $your_answer in
-    [Yy]* ) read -p "Type your new SSH port: " ssh_port;
-    echo 'export ssh_port='$ssh_port >> $HOME/.bash_profile
-    . ~/.bash_profile
-    sed -i.bak -e "s/^Port *=.*/Port = ${ssh_port}/" /etc/ssh/sshd_config
-    sudo ufw allow ${ssh_port}/tcp
-    sudo ufw deny 22
-    ;;
-    [Nn]* )
-    ;;
-  esac
-sleep 1
 
 echo "Module: Install File2ban"
 sleep 1
@@ -87,7 +88,7 @@ read -p "Do you wish to Install File2ban? (y/n): " your_answer
     file2ban_conf=/etc/fail2ban/jail.conf
     sed -i.bak -e "s/^bantime *=.*/bantime = 5m/" ${file2ban_conf}
     sed -i.bak -e "s/^findtime *=.*/findtime = 5m/" ${file2ban_conf}
-    sed -i.bak -e "s/^maxretry *=.*/maxretry = 7/" ${file2ban_conf}
+    sed -i.bak -e "s/^maxretry *=.*/maxretry = 5/" ${file2ban_conf}
     sed -i.bak -e "s/^logpath *=.*/logpath = "/var/log/sshd_log"/" ${file2ban_conf}
     sudo systemctl reload fail2ban
     sudo systemctl status fail2ban
