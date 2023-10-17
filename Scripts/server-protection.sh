@@ -76,7 +76,7 @@ read -p "Do you wish to Change the SSH port? (y/n): " your_answer
   esac
 sleep 1
 
-echo "Module: Change the SSH port"
+echo "Module: Install File2ban"
 sleep 1
 read -p "Do you wish to Install File2ban? (y/n): " your_answer
   case $your_answer in
