@@ -10,6 +10,19 @@
 # Additionally:
 # otritsanie !: https://g-soft.info/articles/7293/bash-proverit-pusta-li-peremennaya/
 # https://www.opennet.ru/docs/RUS/bash_scripting_guide/c2171.html
+
+function help()
+{
+echo 'Usage: server-protection.sh [flag]
+Select modules to run the script.
+-p, --passwd         Change the password
+-sf,--sshfw          Change the SSH port and Firewall configuration
+-f2, --file2         File2ban configuration
+-h, --help           Help about the program'
+}
+
+function password()
+{
 echo 'Module: Change the password'
 sleep 1
 read -p "Do you wish to Change the password? (y/n): " your_answer
@@ -22,7 +35,10 @@ read -p "Do you wish to Change the password? (y/n): " your_answer
     ;;
   esac
 sleep 1
+}
 
+function ssh()
+{
 echo "Module: Change the SSH port"
 sleep 1
 read -p "Do you wish to Change the SSH port? (y/n): " your_answer
@@ -38,12 +54,15 @@ read -p "Do you wish to Change the SSH port? (y/n): " your_answer
     ;;
   esac
 sleep 1
+}
 
+function firewall()
+{
 echo 'Module: Firewall configuration'
 sleep 1
 read -p "Do you wish to do Firewall' configuration? (y/n): " your_answer
   if [[ "$your_answer" == [Yy]* ]]; 
-  #  don't work "^[Yy]*" with "" and ^
+  #  don't work "^[Yy]*" with "" and ^ because this is not a regular expression but a template expression
     then
     sudo apt update && sudo apt upgrde -y
     sudo apt install ufw -y
@@ -71,12 +90,15 @@ read -p "Do you wish to do Firewall' configuration? (y/n): " your_answer
     sudo ufw status
     sudo ufw status verbose
     ss -tulpn
-  elif [[ "$your_answer" == [Nn]* ]];
+  elif [[ "$your_answer" == [Nn]* ]]
     then
     echo "Go to the next module"
     echo "You could deny standart ssh port if you've changed it: sudo ufw deny 22"
   fi
+  }
 
+function fila2ban()
+{
 echo "Module: Install File2ban"
 sleep 1
 read -p "Do you wish to Install File2ban? (y/n): " your_answer
@@ -94,10 +116,39 @@ read -p "Do you wish to Install File2ban? (y/n): " your_answer
     sudo systemctl status fail2ban
     echo "You could check fail2ban' logs: journalctl -b -u fail2ban"
     ;;
-    [Nn][Oo] )
+    [Nn][Oo] ) echo "Go to the next module"
     ;;
   esac
 sleep 1
+}
+
+if ! [ $# -ge 1 ] 
+  then
+  password
+  ssh
+  firewall
+  fila2ban
+else
+  flags=$*
+  for flag in $flags
+  do
+  case $flag in
+  -p|--passwd)      password;;
+  -sf|--sshfw)      ssh; firewall;;
+  -f2|--file2)      fila2ban;;
+  -h|--help)        help;;
+  *)                echo 'If you dont know flags, please see: [--help]';;
+  esac
+  done
+fi
+exit
+  
+
+
+
+
+
+  
 
 
 
