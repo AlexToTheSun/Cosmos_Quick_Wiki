@@ -46,6 +46,7 @@ do
     if ! [ $height -eq $stop_height ]
     then
       echo $height
+      send_telegram_message "$[$stop_height-$height] blocks left"
     else
       systemctl stop $service_name
       mv $new_binary $current_binary
